@@ -1,0 +1,11 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/mainMenu/MainMenu.uss?fileID=7433441132597879392&amp;guid=4bd301a8a009e854c99408c79d9e5368&amp;type=3#MainMenu" />
+    <ui:VisualElement name="VisualElement" style="height: 20%; background-color: rgba(0, 0, 0, 0);">
+        <ui:VisualElement name="Container" style="height: 100%; justify-content: space-around; align-items: center; top: 300%; background-color: rgb(28, 222, 238); flex-direction: row; flex-wrap: wrap; -unity-font: url(&apos;project://database/Assets/UI/Fonts/PartyConfettiRegular-eZOn3.ttf?fileID=12800000&amp;guid=03ba0e836f712b144b2bb5c3dab42c60&amp;type=3#PartyConfettiRegular-eZOn3&apos;); -unity-font-definition: url(&apos;project://database/Assets/UI/Fonts/PartyConfettiRegular-eZOn3%20SDF.asset?fileID=11400000&amp;guid=bc9e26f4dd2c1fd408bfaeb4b6f9b0fe&amp;type=2#PartyConfettiRegular-eZOn3 SDF&apos;);">
+            <ui:Button text="NewGame" display-tooltip-when-elided="true" name="buttonNewGame" class="button" />
+            <ui:Button text="Load Game" display-tooltip-when-elided="true" name="buttonLoadGame" class="button" />
+            <ui:Button text="Settings" display-tooltip-when-elided="true" name="buttonSettings" class="button" />
+            <ui:Button text="Exit" display-tooltip-when-elided="true" name="ButtonExit" class="button" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
