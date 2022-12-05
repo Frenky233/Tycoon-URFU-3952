@@ -1,7 +1,7 @@
 .button {
     width: 20%;
     height: 45%;
-    font-size: 300%;
+    font-size: 80px;
     background-color: rgb(255, 0, 111);
     border-left-color: rgb(255, 0, 111);
     border-right-color: rgb(255, 0, 111);
@@ -9,14 +9,14 @@
     border-bottom-color: rgb(255, 0, 111);
     color: rgb(0, 238, 255);
     -unity-text-outline-color: rgb(0, 255, 255);
-    border-left-width: 10px;
-    border-right-width: 10px;
-    border-top-width: 10px;
-    border-bottom-width: 10px;
-    border-top-left-radius: 25px;
-    border-bottom-left-radius: 25px;
-    border-top-right-radius: 25px;
-    border-bottom-right-radius: 25px;
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
     -unity-font: url('project://database/Assets/UI/Fonts/PartyConfettiRegular-eZOn3.ttf?fileID=12800000&guid=03ba0e836f712b144b2bb5c3dab42c60&type=3#PartyConfettiRegular-eZOn3');
 }
 
@@ -31,13 +31,16 @@
     border-bottom-color: rgb(91, 0, 40);
     color: rgb(236, 0, 94);
     -unity-text-outline-color: rgb(0, 255, 255);
-    border-left-width: 10px;
-    border-right-width: 10px;
-    border-top-width: 10px;
-    border-bottom-width: 10px;
-    border-top-left-radius: 25px;
-    border-bottom-left-radius: 25px;
-    border-top-right-radius: 25px;
-    border-bottom-right-radius: 25px;
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
     -unity-font: url('project://database/Assets/UI/Fonts/PartyConfettiRegular-eZOn3.ttf?fileID=12800000&guid=03ba0e836f712b144b2bb5c3dab42c60&type=3#PartyConfettiRegular-eZOn3');
+}
+
+.menu {
 }
