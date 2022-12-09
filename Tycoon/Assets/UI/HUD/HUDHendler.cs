@@ -5,11 +5,15 @@ using UnityEngine.UIElements;
 
 public class HUDHendler : MonoBehaviour
 {
+    Player player;
     public Button Building;
     public Button LeaderBoard;
     public Button Finance;
     public Button BuildMenuExit;
     public VisualElement BuildMenu;
+
+    private Label Money;
+    private Label Income;
     // Start is called before the first frame update
 
     void Start()
@@ -21,19 +25,19 @@ public class HUDHendler : MonoBehaviour
         Finance = root.Q<Button>("Finance");
         BuildMenuExit = root.Q<Button>("BuildMenuExit");
         BuildMenu = root.Q<VisualElement>("BuildMenu");
+        Money = root.Q<Label>("Money");
+        Income = root.Q<Label>("Income");
 
 
         Building.clicked += BuildingEvent;
         BuildMenuExit.clicked += BuildMenuExitEvent;
-
-
-        
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        Money.text = player.money.ToString();
+        Income.text = player.income.ToString();
     }
     void BuildingEvent()
     {
