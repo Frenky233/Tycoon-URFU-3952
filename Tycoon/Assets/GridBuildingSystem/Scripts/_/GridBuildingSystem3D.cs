@@ -85,21 +85,40 @@ public class GridBuildingSystem3D : MonoBehaviour {
                 }
             }
 
+            int objectCost = placedObjectTypeSO.cost;
+            bool moneyCheck = false;
+            if (GameManager.instance.money.EnoughMoney(objectCost))
+            {
+                moneyCheck = true;
+            }
+
             if (canBuild) {
-                Vector2Int rotationOffset = placedObjectTypeSO.GetRotationOffset(dir);
-                Vector3 placedObjectWorldPosition = grid.GetWorldPosition(placedObjectOrigin.x, placedObjectOrigin.y) + new Vector3(rotationOffset.x, 0, rotationOffset.y) * grid.GetCellSize();
+                if (moneyCheck)
+                {
+                    Vector2Int rotationOffset = placedObjectTypeSO.GetRotationOffset(dir);
+                    Vector3 placedObjectWorldPosition = grid.GetWorldPosition(placedObjectOrigin.x, placedObjectOrigin.y) + new Vector3(rotationOffset.x, 0, rotationOffset.y) * grid.GetCellSize();
 
-                UtilsClass.CreateWorldTextPopup("Builded!", mousePosition);
-                PlacedObject_Done placedObject = PlacedObject_Done.Create(placedObjectWorldPosition, placedObjectOrigin, dir, placedObjectTypeSO);
-                placedObject.transform.SetParent(parentObject.transform);
+                    UtilsClass.CreateWorldTextPopup("Builded!", mousePosition);
+                    PlacedObject_Done placedObject = PlacedObject_Done.Create(placedObjectWorldPosition, placedObjectOrigin, dir, placedObjectTypeSO);
+                    placedObject.transform.SetParent(parentObject.transform);
                     
-                foreach (Vector2Int gridPosition in gridPositionList) {
-                    grid.GetGridObject(gridPosition.x, gridPosition.y).SetPlacedObject(placedObject);
+                    foreach (Vector2Int gridPosition in gridPositionList) {
+                        grid.GetGridObject(gridPosition.x, gridPosition.y).SetPlacedObject(placedObject);
+                    }
+
+                    OnObjectPlaced?.Invoke(this, EventArgs.Empty);
+
+                    GameManager.instance.money.UseMoney(objectCost);
+
+                    if (!Input.GetKey(KeyCode.LeftShift))
+                    {
+                        DeselectObjectType();
+                    }
                 }
-
-                OnObjectPlaced?.Invoke(this, EventArgs.Empty);
-
-                //DeselectObjectType();
+                else
+                {
+                    UtilsClass.CreateWorldTextPopup("Not Enough Money!", mousePosition);
+                }
             } else {
                 // Cannot build here
                 UtilsClass.CreateWorldTextPopup("Cannot Build Here!", mousePosition);
@@ -110,12 +129,12 @@ public class GridBuildingSystem3D : MonoBehaviour {
             dir = PlacedObjectTypeSO.GetNextDir(dir);
         }
 
-        if (Input.GetKeyDown(KeyCode.Alpha1)) { placedObjectTypeSO = placedObjectTypeSOList[0]; RefreshSelectedObjectType(); }
-        if (Input.GetKeyDown(KeyCode.Alpha2)) { placedObjectTypeSO = placedObjectTypeSOList[1]; RefreshSelectedObjectType(); }
-        if (Input.GetKeyDown(KeyCode.Alpha3)) { placedObjectTypeSO = placedObjectTypeSOList[2]; RefreshSelectedObjectType(); }
-        if (Input.GetKeyDown(KeyCode.Alpha4)) { placedObjectTypeSO = placedObjectTypeSOList[3]; RefreshSelectedObjectType(); }
-        if (Input.GetKeyDown(KeyCode.Alpha5)) { placedObjectTypeSO = placedObjectTypeSOList[4]; RefreshSelectedObjectType(); }
-        if (Input.GetKeyDown(KeyCode.Alpha6)) { placedObjectTypeSO = placedObjectTypeSOList[5]; RefreshSelectedObjectType(); }
+        // if (Input.GetKeyDown(KeyCode.Alpha1)) { placedObjectTypeSO = placedObjectTypeSOList[0]; RefreshSelectedObjectType(); }
+        // if (Input.GetKeyDown(KeyCode.Alpha2)) { placedObjectTypeSO = placedObjectTypeSOList[1]; RefreshSelectedObjectType(); }
+        // if (Input.GetKeyDown(KeyCode.Alpha3)) { placedObjectTypeSO = placedObjectTypeSOList[2]; RefreshSelectedObjectType(); }
+        // if (Input.GetKeyDown(KeyCode.Alpha4)) { placedObjectTypeSO = placedObjectTypeSOList[3]; RefreshSelectedObjectType(); }
+        // if (Input.GetKeyDown(KeyCode.Alpha5)) { placedObjectTypeSO = placedObjectTypeSOList[4]; RefreshSelectedObjectType(); }
+        // if (Input.GetKeyDown(KeyCode.Alpha6)) { placedObjectTypeSO = placedObjectTypeSOList[5]; RefreshSelectedObjectType(); }
 
         if (Input.GetKeyDown(KeyCode.Alpha0)) { DeselectObjectType(); }
 
@@ -175,6 +194,10 @@ public class GridBuildingSystem3D : MonoBehaviour {
 
     public PlacedObjectTypeSO GetPlacedObjectTypeSO() {
         return placedObjectTypeSO;
+    }
+
+    public void GetObjectID(int ID){
+        placedObjectTypeSO = placedObjectTypeSOList[ID]; RefreshSelectedObjectType();
     }
 
 }
