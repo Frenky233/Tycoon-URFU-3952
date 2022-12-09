@@ -1,6 +1,6 @@
 .button {
-    width: 20%;
-    height: 45%;
+    width: 90%;
+    height: 15%;
     font-size: 80px;
     background-color: rgb(255, 0, 111);
     border-left-color: rgb(255, 0, 111);
@@ -18,18 +18,22 @@
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
     -unity-font: url('project://database/Assets/UI/Fonts/PartyConfettiRegular-eZOn3.ttf?fileID=12800000&guid=03ba0e836f712b144b2bb5c3dab42c60&type=3#PartyConfettiRegular-eZOn3');
+    justify-content: flex-start;
+}
+
+.menu {
 }
 
 .button:hover {
-    width: 20%;
-    height: 45%;
-    font-size: 300%;
-    background-color: rgb(91, 0, 40);
-    border-left-color: rgb(91, 0, 40);
-    border-right-color: rgb(91, 0, 40);
-    border-top-color: rgb(91, 0, 40);
-    border-bottom-color: rgb(91, 0, 40);
-    color: rgb(236, 0, 94);
+    width: 90%;
+    height: 15%;
+    font-size: 80px;
+    background-color: rgb(130, 2, 58);
+    border-left-color: rgb(255, 0, 111);
+    border-right-color: rgb(255, 0, 111);
+    border-top-color: rgb(255, 0, 111);
+    border-bottom-color: rgb(255, 0, 111);
+    color: rgb(255, 175, 0);
     -unity-text-outline-color: rgb(0, 255, 255);
     border-left-width: 0;
     border-right-width: 0;
@@ -40,7 +44,5 @@
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
     -unity-font: url('project://database/Assets/UI/Fonts/PartyConfettiRegular-eZOn3.ttf?fileID=12800000&guid=03ba0e836f712b144b2bb5c3dab42c60&type=3#PartyConfettiRegular-eZOn3');
-}
-
-.menu {
+    justify-content: flex-start;
 }
