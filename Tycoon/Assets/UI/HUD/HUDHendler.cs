@@ -54,7 +54,7 @@ public class HUDHendler : MonoBehaviour
         LeaderBoard.style.display = DisplayStyle.None;
         Finance.style.display = DisplayStyle.None;
     }
-    void BuildMenuExitEvent()
+    public void BuildMenuExitEvent()
     {
         BuildMenu.style.display = DisplayStyle.None;
         Building.style.display = DisplayStyle.Flex;
