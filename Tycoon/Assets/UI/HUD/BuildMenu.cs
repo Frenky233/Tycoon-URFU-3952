@@ -23,11 +23,8 @@ public class BuildMenu : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        GridBuildingSystem3D.Instance.Building();
-        GridBuildingSystem3D.Instance.placedObjectTypeSO = button_0_0_obj;
     }
     void button_0_0_click(){
         GetComponent<HUDHendler>().BuildMenuExitEvent();
-        
     }
 }
