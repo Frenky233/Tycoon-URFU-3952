@@ -85,6 +85,7 @@ public class GridBuildingSystem3D : MonoBehaviour {
                 }
             }
 
+<<<<<<< Updated upstream
             int objectCost = placedObjectTypeSO.cost;
             bool moneyCheck = false;
             if (GameManager.instance.money.EnoughMoney(objectCost))
@@ -94,6 +95,12 @@ public class GridBuildingSystem3D : MonoBehaviour {
 
             if (canBuild) {
                 if (moneyCheck)
+=======
+            
+
+            if (canBuild) {
+                
+>>>>>>> Stashed changes
                 {
                     Vector2Int rotationOffset = placedObjectTypeSO.GetRotationOffset(dir);
                     Vector3 placedObjectWorldPosition = grid.GetWorldPosition(placedObjectOrigin.x, placedObjectOrigin.y) + new Vector3(rotationOffset.x, 0, rotationOffset.y) * grid.GetCellSize();
@@ -108,17 +115,24 @@ public class GridBuildingSystem3D : MonoBehaviour {
 
                     OnObjectPlaced?.Invoke(this, EventArgs.Empty);
 
+<<<<<<< Updated upstream
                     GameManager.instance.money.UseMoney(objectCost);
 
+=======
+>>>>>>> Stashed changes
                     if (!Input.GetKey(KeyCode.LeftShift))
                     {
                         DeselectObjectType();
                     }
                 }
+<<<<<<< Updated upstream
                 else
                 {
                     UtilsClass.CreateWorldTextPopup("Not Enough Money!", mousePosition);
                 }
+=======
+                
+>>>>>>> Stashed changes
             } else {
                 // Cannot build here
                 UtilsClass.CreateWorldTextPopup("Cannot Build Here!", mousePosition);
@@ -157,7 +171,7 @@ public class GridBuildingSystem3D : MonoBehaviour {
         }
     }
 
-    private void DeselectObjectType() {
+    public void DeselectObjectType() {
         placedObjectTypeSO = null; RefreshSelectedObjectType();
     }
 
@@ -200,4 +214,8 @@ public class GridBuildingSystem3D : MonoBehaviour {
         placedObjectTypeSO = placedObjectTypeSOList[ID]; RefreshSelectedObjectType();
     }
 
+<<<<<<< Updated upstream
 }
+=======
+}
+>>>>>>> Stashed changes
