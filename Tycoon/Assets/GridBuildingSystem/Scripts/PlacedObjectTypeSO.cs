@@ -29,6 +29,8 @@ public class PlacedObjectTypeSO : ScriptableObject {
     public int height;
     public int cost;
     public int ID;
+    public bool isRoad;
+    public bool isStartFinish;
 
 
     public int GetRotationAngle(Dir dir) {

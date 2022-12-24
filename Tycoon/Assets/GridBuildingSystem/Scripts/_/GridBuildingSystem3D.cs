@@ -68,7 +68,9 @@ public class GridBuildingSystem3D : MonoBehaviour {
     }
 
     private void Update() {
-        if (Input.GetMouseButtonDown(0) && placedObjectTypeSO != null) {
+        if (Input.GetMouseButtonDown(0) && placedObjectTypeSO != null && !MouseCheckerManager.instance.mouseCheck) {
+            bool isRoad = placedObjectTypeSO.isRoad;
+            bool isStartFinish = placedObjectTypeSO.isStartFinish;
             Vector3 mousePosition = Mouse3D.GetMouseWorldPosition();
             grid.GetXZ(mousePosition, out int x, out int z);
 
@@ -92,8 +94,8 @@ public class GridBuildingSystem3D : MonoBehaviour {
                 moneyCheck = true;
             }
 
-            if (canBuild) {
-                if (moneyCheck)
+            if (moneyCheck) {
+                if (canBuild)
                 {
                     Vector2Int rotationOffset = placedObjectTypeSO.GetRotationOffset(dir);
                     Vector3 placedObjectWorldPosition = grid.GetWorldPosition(placedObjectOrigin.x, placedObjectOrigin.y) + new Vector3(rotationOffset.x, 0, rotationOffset.y) * grid.GetCellSize();
@@ -102,8 +104,20 @@ public class GridBuildingSystem3D : MonoBehaviour {
                     PlacedObject_Done placedObject = PlacedObject_Done.Create(placedObjectWorldPosition, placedObjectOrigin, dir, placedObjectTypeSO);
                     placedObject.transform.SetParent(parentObject.transform);
                     
-                    foreach (Vector2Int gridPosition in gridPositionList) {
+                    foreach (Vector2Int gridPosition in gridPositionList) 
+                    {
                         grid.GetGridObject(gridPosition.x, gridPosition.y).SetPlacedObject(placedObject);
+                        if(isRoad)
+                        {
+                            if(isStartFinish)
+                            {
+                            RaceSystem.instance.startfinish = grid.GetWorldPosition(gridPosition.x,gridPosition.y) + new Vector3(5,0,5);
+                            }
+                            else
+                            {
+                                RaceSystem.instance.roads.Add(grid.GetWorldPosition(gridPosition.x,gridPosition.y) + new Vector3(5,0,5));
+                            }
+                        }
                     }
 
                     OnObjectPlaced?.Invoke(this, EventArgs.Empty);
@@ -117,11 +131,11 @@ public class GridBuildingSystem3D : MonoBehaviour {
                 }
                 else
                 {
-                    UtilsClass.CreateWorldTextPopup("Not Enough Money!", mousePosition);
+                    UtilsClass.CreateWorldTextPopup("Cannot Build Here!", mousePosition);
                 }
             } else {
                 // Cannot build here
-                UtilsClass.CreateWorldTextPopup("Cannot Build Here!", mousePosition);
+                UtilsClass.CreateWorldTextPopup("Not Enough Money!", mousePosition);
             }
         }
 

@@ -6,6 +6,8 @@ public class Mouse3D : MonoBehaviour {
 
     public static Mouse3D Instance { get; private set; }
 
+    private RaycastHit lastRaycastHit;
+
     [SerializeField] private LayerMask mouseColliderLayerMask = new LayerMask();
 
     private void Awake() {
@@ -24,9 +26,10 @@ public class Mouse3D : MonoBehaviour {
     private Vector3 GetMouseWorldPosition_Instance() {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out RaycastHit raycastHit, 999f, mouseColliderLayerMask)) {
+            lastRaycastHit = raycastHit;
             return raycastHit.point;
         } else {
-            return Vector3.zero;
+            return lastRaycastHit.point;
         }
     }
 
