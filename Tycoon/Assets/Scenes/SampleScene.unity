@@ -513,7 +513,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82561e65fe36a4b45b2010ef5cdc4153, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  style: {fileID: 0}
   player: {fileID: 2147387760}
   uiBaseScreenHeight: 1080
 --- !u!114 &734140528
@@ -525,7 +524,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 734140524}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 12b36f5f4b0854045a795dbb94ea24fb, type: 3}
+  m_Script: {fileID: 11500000, guid: 253d15106e37c614d9f3e8efa9bd08c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   GridBuildingSystem3D: {fileID: 2009767559}
@@ -1021,11 +1020,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 69549951f341a4343af657238168b33f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  parent: {fileID: 1997416033}
-  buildings: []
-  money: 0
-  income: 1
-  year: 1950
 --- !u!4 &2147387761
 Transform:
   m_ObjectHideFlags: 0
