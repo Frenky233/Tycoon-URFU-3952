@@ -5,19 +5,16 @@ using UnityEngine.UIElements;
 
 public class HUDHendler : MonoBehaviour
 {
+    public Player player;
     public Button Building;
     public Button LeaderBoard;
     public Button Finance;
     public Button BuildMenuExit;
     public VisualElement BuildMenu;
-<<<<<<< Updated upstream
-=======
-
     private Label Money;
     private Label Income;
     private Label BuildMenuName;
     public float uiBaseScreenHeight = 1080f;
->>>>>>> Stashed changes
     // Start is called before the first frame update
 
     void Start()
@@ -29,13 +26,10 @@ public class HUDHendler : MonoBehaviour
         Finance = root.Q<Button>("Finance");
         BuildMenuExit = root.Q<Button>("BuildMenuExit");
         BuildMenu = root.Q<VisualElement>("BuildMenu");
-<<<<<<< Updated upstream
-
-=======
         Money = root.Q<Label>("Money");
         Income = root.Q<Label>("Income");
         BuildMenuName = root.Q<Label>("BuildMenuName");
->>>>>>> Stashed changes
+
 
         Building.clicked += BuildingEvent;
         BuildMenuExit.clicked += BuildMenuExitEvent;
@@ -47,9 +41,6 @@ public class HUDHendler : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-<<<<<<< Updated upstream
-        
-=======
         Building.style.fontSize = GetScaledFontSize(35);
         LeaderBoard.style.fontSize = GetScaledFontSize(35);
         Finance.style.fontSize = GetScaledFontSize(35);
@@ -61,7 +52,6 @@ public class HUDHendler : MonoBehaviour
         }
         Income.text = player.income.ToString();
         Income.style.fontSize = GetScaledFontSize(25);
->>>>>>> Stashed changes
     }
     void BuildingEvent()
     {
@@ -71,15 +61,13 @@ public class HUDHendler : MonoBehaviour
         LeaderBoard.style.display = DisplayStyle.None;
         Finance.style.display = DisplayStyle.None;
     }
-    void BuildMenuExitEvent()
+    public void BuildMenuExitEvent()
     {
         BuildMenu.style.display = DisplayStyle.None;
         Building.style.display = DisplayStyle.Flex;
         LeaderBoard.style.display = DisplayStyle.Flex;
         Finance.style.display = DisplayStyle.Flex;
     }
-<<<<<<< Updated upstream
-=======
     void FinanceEvent()
     {
         player.money += player.income;
@@ -90,5 +78,4 @@ public class HUDHendler : MonoBehaviour
         int scaledFontSize = Mathf.RoundToInt(baseFontSize * uiScale);
         return scaledFontSize;
     }
->>>>>>> Stashed changes
 }
