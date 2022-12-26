@@ -10,15 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3e7747bdf78fa6141a2f81d16ff91e5f, type: 3}
-  m_Name: rightturn
+  m_Name: leftTurn
   m_EditorClassIdentifier: 
-  nameString: rightturn
-  prefab: {fileID: 4782235985580720507, guid: e4681c1e66ec317479eb59954d6e90d1, type: 3}
-  visual: {fileID: 2499414142690952232, guid: c9420b4c5ce113046be234d64827ca1f, type: 3}
+  nameString: leftTurn
+  prefab: {fileID: 4782235985580720507, guid: a71c146d4902e824897dc60b9218af88, type: 3}
+  visual: {fileID: 2499414142690952232, guid: a0823e34a5f01504cac601bf82863b6e, type: 3}
   width: 1
   height: 1
   cost: 1
-  ID: 5
+  ID: 6
   isRoad: 1
   isStartFinish: 0
-  isTurn: 1
+  isRightTurn: 0
+  isLeftTurn: 1

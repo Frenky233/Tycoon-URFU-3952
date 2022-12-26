@@ -31,7 +31,7 @@ public class PlacedObjectTypeSO : ScriptableObject {
     public int ID;
     public bool isRoad;
     public bool isStartFinish;
-
+    public bool isTurn; 
 
     public int GetRotationAngle(Dir dir) {
         switch (dir) {

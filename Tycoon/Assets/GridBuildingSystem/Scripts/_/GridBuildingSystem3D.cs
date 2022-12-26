@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -67,17 +68,17 @@ public class GridBuildingSystem3D : MonoBehaviour {
 
     }
 
-    private void Update() {
+    private void Update() {     
         if (Input.GetMouseButtonDown(0) && placedObjectTypeSO != null && !MouseCheckerManager.instance.mouseCheck) {
             bool isRoad = placedObjectTypeSO.isRoad;
             bool isStartFinish = placedObjectTypeSO.isStartFinish;
+            bool isTurn = placedObjectTypeSO.isTurn;
             Vector3 mousePosition = Mouse3D.GetMouseWorldPosition();
             grid.GetXZ(mousePosition, out int x, out int z);
 
             Vector2Int placedObjectOrigin = new Vector2Int(x, z);
             placedObjectOrigin = grid.ValidateGridPosition(placedObjectOrigin);
 
-            // Test Can Build
             List<Vector2Int> gridPositionList = placedObjectTypeSO.GetGridPositionList(placedObjectOrigin, dir);
             bool canBuild = true;
             foreach (Vector2Int gridPosition in gridPositionList) {
@@ -87,54 +88,110 @@ public class GridBuildingSystem3D : MonoBehaviour {
                 }
             }
 
-            int objectCost = placedObjectTypeSO.cost;
             bool moneyCheck = false;
-            if (GameManager.instance.money.EnoughMoney(objectCost))
+            if (GameManager.instance.money.EnoughMoney(placedObjectTypeSO.cost))
             {
                 moneyCheck = true;
             }
 
-            if (moneyCheck) {
-                if (canBuild)
+            bool isStartFinishPlaced = true;
+            bool canBuildRoad = true;
+            bool trueDir = true;
+            if(isRoad)
+            {
+                if(RaceSystem.instance.startFinish == Vector3.zero && !isStartFinish)
                 {
-                    Vector2Int rotationOffset = placedObjectTypeSO.GetRotationOffset(dir);
-                    Vector3 placedObjectWorldPosition = grid.GetWorldPosition(placedObjectOrigin.x, placedObjectOrigin.y) + new Vector3(rotationOffset.x, 0, rotationOffset.y) * grid.GetCellSize();
-
-                    UtilsClass.CreateWorldTextPopup("Builded!", mousePosition);
-                    PlacedObject_Done placedObject = PlacedObject_Done.Create(placedObjectWorldPosition, placedObjectOrigin, dir, placedObjectTypeSO);
-                    placedObject.transform.SetParent(parentObject.transform);
-                    
-                    foreach (Vector2Int gridPosition in gridPositionList) 
+                    isStartFinishPlaced = false;
+                }
+                if(Vector3.Distance(grid.GetWorldPosition(x,z) + new Vector3(5,0,5), RaceSystem.instance.roads.LastOrDefault()) > 10 && RaceSystem.instance.roads.Any())
+                {
+                    canBuildRoad = false;
+                }
+                else if(Vector3.Distance(grid.GetWorldPosition(x,z) + new Vector3(5,0,5), RaceSystem.instance.startFinish) > 10 && !RaceSystem.instance.roads.Any())
+                {
+                    canBuildRoad = false;
+                }        
+                if(isStartFinish)
+                {
+                    canBuildRoad = true;
+                    if(RaceSystem.instance.startFinish != Vector3.zero)
                     {
-                        grid.GetGridObject(gridPosition.x, gridPosition.y).SetPlacedObject(placedObject);
+                        isStartFinishPlaced = false;
+                    }
+                }
+                if(canBuild && isStartFinishPlaced && canBuildRoad && moneyCheck)
+                {
+                    trueDir = DirectionCheck(grid.GetWorldPosition(x, z), isTurn, isStartFinish, dir);
+                }
+            }
+
+            if (moneyCheck) 
+            {
+                if(isStartFinishPlaced && canBuildRoad && trueDir)
+                {
+                    if (canBuild)
+                    {
+                        Vector2Int rotationOffset = placedObjectTypeSO.GetRotationOffset(dir);
+                        Vector3 placedObjectWorldPosition = grid.GetWorldPosition(placedObjectOrigin.x, placedObjectOrigin.y) + new Vector3(rotationOffset.x, 0, rotationOffset.y) * grid.GetCellSize();
+
+                        UtilsClass.CreateWorldTextPopup("Builded!", mousePosition);
+                        PlacedObject_Done placedObject = PlacedObject_Done.Create(placedObjectWorldPosition, placedObjectOrigin, dir, placedObjectTypeSO);
+                        placedObject.transform.SetParent(parentObject.transform);
+                        
+                        foreach (Vector2Int gridPosition in gridPositionList) 
+                        {
+                            grid.GetGridObject(gridPosition.x, gridPosition.y).SetPlacedObject(placedObject);
+                        }
+
                         if(isRoad)
                         {
                             if(isStartFinish)
                             {
-                            RaceSystem.instance.startfinish = grid.GetWorldPosition(gridPosition.x,gridPosition.y) + new Vector3(5,0,5);
+                                RaceSystem.instance.startFinish = grid.GetWorldPosition(x, z) + new Vector3(5,0,5);
+                                RaceSystem.instance.startFinishDir = dir;
                             }
                             else
                             {
-                                RaceSystem.instance.roads.Add(grid.GetWorldPosition(gridPosition.x,gridPosition.y) + new Vector3(5,0,5));
+                                RaceSystem.instance.roads.Add(grid.GetWorldPosition(x, z) + new Vector3(5,0,5));
                             }
                         }
+                        
+                        OnObjectPlaced?.Invoke(this, EventArgs.Empty);
+
+                        GameManager.instance.money.UseMoney(placedObjectTypeSO.cost);
+
+                        if (!Input.GetKey(KeyCode.LeftShift))
+                        {
+                            DeselectObjectType();
+                        }
                     }
-
-                    OnObjectPlaced?.Invoke(this, EventArgs.Empty);
-
-                    GameManager.instance.money.UseMoney(objectCost);
-
-                    if (!Input.GetKey(KeyCode.LeftShift))
+                    else
                     {
-                        DeselectObjectType();
+                        UtilsClass.CreateWorldTextPopup("Cannot Build Here!", mousePosition);
                     }
                 }
-                else
+                else if(!isStartFinishPlaced)
                 {
-                    UtilsClass.CreateWorldTextPopup("Cannot Build Here!", mousePosition);
+                    if(RaceSystem.instance.startFinish == Vector3.zero)
+                    {
+                        UtilsClass.CreateWorldTextPopup("Build Start Finish First", mousePosition);
+                    }
+                    else
+                    {
+                        UtilsClass.CreateWorldTextPopup("Start Finish Is Alredy Placed", mousePosition);
+                    }
                 }
-            } else {
-                // Cannot build here
+                else if(!canBuildRoad)
+                {
+                    UtilsClass.CreateWorldTextPopup("No Nearby Roads Found", mousePosition);
+                }
+                else if(!trueDir)
+                {
+                    UtilsClass.CreateWorldTextPopup("Wrong Direction", mousePosition);
+                }
+            } 
+            else 
+            {
                 UtilsClass.CreateWorldTextPopup("Not Enough Money!", mousePosition);
             }
         }
@@ -143,24 +200,33 @@ public class GridBuildingSystem3D : MonoBehaviour {
             dir = PlacedObjectTypeSO.GetNextDir(dir);
         }
 
-        // if (Input.GetKeyDown(KeyCode.Alpha1)) { placedObjectTypeSO = placedObjectTypeSOList[0]; RefreshSelectedObjectType(); }
-        // if (Input.GetKeyDown(KeyCode.Alpha2)) { placedObjectTypeSO = placedObjectTypeSOList[1]; RefreshSelectedObjectType(); }
-        // if (Input.GetKeyDown(KeyCode.Alpha3)) { placedObjectTypeSO = placedObjectTypeSOList[2]; RefreshSelectedObjectType(); }
-        // if (Input.GetKeyDown(KeyCode.Alpha4)) { placedObjectTypeSO = placedObjectTypeSOList[3]; RefreshSelectedObjectType(); }
-        // if (Input.GetKeyDown(KeyCode.Alpha5)) { placedObjectTypeSO = placedObjectTypeSOList[4]; RefreshSelectedObjectType(); }
-        // if (Input.GetKeyDown(KeyCode.Alpha6)) { placedObjectTypeSO = placedObjectTypeSOList[5]; RefreshSelectedObjectType(); }
-
-        if (Input.GetKeyDown(KeyCode.Alpha0)) { DeselectObjectType(); }
+        if (Input.GetKeyDown(KeyCode.Escape)) { DeselectObjectType(); }
 
 
         if (Input.GetMouseButtonDown(1)) {
             Vector3 mousePosition = Mouse3D.GetMouseWorldPosition();
+
             if (grid.GetGridObject(mousePosition) != null) {
-                // Valid Grid Position
                 PlacedObject_Done placedObject = grid.GetGridObject(mousePosition).GetPlacedObject();
-                if (placedObject != null) {
-                    // Demolish
+                grid.GetXZ(mousePosition, out int x, out int z);
+                Vector3 position = grid.GetWorldPosition(x, z) + new Vector3(5,0,5);
+                bool demolishPossible = true;
+                if(RaceSystem.instance.roads.Contains(position) && position != RaceSystem.instance.roads.LastOrDefault())
+                {
+                    UtilsClass.CreateWorldTextPopup("Demolish impossible", mousePosition);
+                    demolishPossible = false;
+                }
+                if (placedObject != null && demolishPossible) {
+                    if(RaceSystem.instance.roads.Contains(position) && RaceSystem.instance.roads.Any())
+                    {
+                        RaceSystem.instance.roads.RemoveAt(RaceSystem.instance.roads.Count - 1);
+                    }
+                    if(position == RaceSystem.instance.startFinish)
+                    {
+                        RaceSystem.instance.startFinish = Vector3.zero;
+                    }
                     placedObject.DestroySelf();
+                    UtilsClass.CreateWorldTextPopup("Demolished", mousePosition);
 
                     List<Vector2Int> gridPositionList = placedObject.GetGridPositionList();
                     foreach (Vector2Int gridPosition in gridPositionList) {
@@ -178,7 +244,6 @@ public class GridBuildingSystem3D : MonoBehaviour {
     private void RefreshSelectedObjectType() {
         OnSelectedChanged?.Invoke(this, EventArgs.Empty);
     }
-
 
     public Vector2Int GetGridPosition(Vector3 worldPosition) {
         grid.GetXZ(worldPosition, out int x, out int z);
@@ -214,4 +279,367 @@ public class GridBuildingSystem3D : MonoBehaviour {
         placedObjectTypeSO = placedObjectTypeSOList[ID]; RefreshSelectedObjectType();
     }
 
+    private bool DirectionCheck(Vector3 worldPosition, bool isTurn, bool isStartFinish, PlacedObjectTypeSO.Dir dir)
+    {
+        float x1 = (worldPosition + new Vector3(5,0,5)).x;
+        float z1 = (worldPosition + new Vector3(5,0,5)).z;
+        bool trueDir = true;
+        if(!RaceSystem.instance.roads.Any())
+        {
+            float x2 = RaceSystem.instance.startFinish.x;
+            float z2 = RaceSystem.instance.startFinish.z;
+            switch(RaceSystem.instance.startFinishDir)
+            {
+                default:
+                case PlacedObjectTypeSO.Dir.Left:
+                case PlacedObjectTypeSO.Dir.Right:
+                    if(x1 > x2 && z1 == z2)
+                    {
+                        if(isTurn)
+                        {
+                            if(dir == PlacedObjectTypeSO.Dir.Left)
+                            {
+                                trueDir = true;
+                                RaceSystem.instance.trackDir = PlacedObjectTypeSO.Dir.Down;
+                                break;
+                            }
+                            else if(dir == PlacedObjectTypeSO.Dir.Up)
+                            {
+                                trueDir = true;
+                                RaceSystem.instance.trackDir = PlacedObjectTypeSO.Dir.Up;
+                                break;
+                            }
+                            else
+                            {
+                                trueDir = false;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            if(dir == PlacedObjectTypeSO.Dir.Left || dir == PlacedObjectTypeSO.Dir.Right)
+                            {
+                                trueDir = true;
+                                RaceSystem.instance.trackDir = PlacedObjectTypeSO.Dir.Right;
+                                break;
+                            }
+                            else
+                            {
+                                trueDir = false;
+                                break;
+                            }
+                        }
+                    }
+                    else if(z1 == z2)
+                    {
+                        if(isTurn)
+                        {   
+                            if(dir == PlacedObjectTypeSO.Dir.Right)
+                            {
+                                trueDir = true;
+                                RaceSystem.instance.trackDir = PlacedObjectTypeSO.Dir.Up;
+                                break;
+                            }
+                            else if(dir == PlacedObjectTypeSO.Dir.Down)
+                            {
+                                trueDir = true;
+                                RaceSystem.instance.trackDir = PlacedObjectTypeSO.Dir.Down;
+                                break;
+                            }
+                            else
+                            {
+                                trueDir = false;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            if(dir == PlacedObjectTypeSO.Dir.Left || dir == PlacedObjectTypeSO.Dir.Right)
+                            {
+                                trueDir = true;
+                                RaceSystem.instance.trackDir = PlacedObjectTypeSO.Dir.Left;
+                                break;
+                            }
+                            else
+                            {
+                                trueDir = false;
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        trueDir = false;
+                        break;
+                    }
+                case PlacedObjectTypeSO.Dir.Up:
+                case PlacedObjectTypeSO.Dir.Down:
+                    if(z1 > x2 && x1 == x2)
+                    {
+                        if(isTurn)
+                        {
+                            if(dir == PlacedObjectTypeSO.Dir.Left)
+                            {
+                                trueDir = true;
+                                RaceSystem.instance.trackDir = PlacedObjectTypeSO.Dir.Left;
+                                break;
+                            }
+                            else if(dir == PlacedObjectTypeSO.Dir.Down)
+                            {
+                                trueDir = true;
+                                RaceSystem.instance.trackDir = PlacedObjectTypeSO.Dir.Right;
+                                break;
+                            }
+                            else
+                            {
+                                trueDir = false;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            if(dir == PlacedObjectTypeSO.Dir.Up || dir == PlacedObjectTypeSO.Dir.Down)
+                            {
+                                trueDir = true;
+                                RaceSystem.instance.trackDir = PlacedObjectTypeSO.Dir.Up;
+                                break;
+                            }
+                            else
+                            {
+                                trueDir = false;
+                                break;
+                            }
+                        }
+                    }
+                    else if(x1 == x2)
+                    {
+                        if(isTurn)
+                        {
+                            if(dir == PlacedObjectTypeSO.Dir.Right)
+                            {
+                                trueDir = true;
+                                RaceSystem.instance.trackDir = PlacedObjectTypeSO.Dir.Right;
+                                break;
+                            }
+                            else if(dir == PlacedObjectTypeSO.Dir.Up)
+                            {
+                                trueDir = true;
+                                RaceSystem.instance.trackDir = PlacedObjectTypeSO.Dir.Left;
+                                break;
+                            }
+                            else
+                            {
+                                trueDir = false;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            if(dir == PlacedObjectTypeSO.Dir.Up || dir == PlacedObjectTypeSO.Dir.Down)
+                            {
+                                trueDir = true;
+                                RaceSystem.instance.trackDir = PlacedObjectTypeSO.Dir.Down;
+                                break;
+                            }
+                            else
+                            {
+                                trueDir = false;
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        trueDir = false;
+                        break;
+                    }
+            }
+        }
+        else
+        {
+            float x2 = RaceSystem.instance.roads.LastOrDefault().x;
+            float z2 = RaceSystem.instance.roads.LastOrDefault().z;
+            switch(RaceSystem.instance.trackDir)
+            {
+                default:
+                case PlacedObjectTypeSO.Dir.Up:
+                    if(x1 == x2)
+                    {
+                        if(isTurn)
+                        {
+                            if(dir == PlacedObjectTypeSO.Dir.Left)
+                            {
+                                trueDir = true;
+                                RaceSystem.instance.trackDir = PlacedObjectTypeSO.Dir.Left;
+                                break;
+                            }
+                            else if(dir == PlacedObjectTypeSO.Dir.Down)
+                            {
+                                trueDir = true;
+                                RaceSystem.instance.trackDir = PlacedObjectTypeSO.Dir.Right;
+                                break;
+                            }
+                            else
+                            {
+                                trueDir = false;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            if(dir == PlacedObjectTypeSO.Dir.Up || dir == PlacedObjectTypeSO.Dir.Down)
+                            {
+                                trueDir = true;
+                                RaceSystem.instance.trackDir = PlacedObjectTypeSO.Dir.Up;
+                                break;
+                            }
+                            else
+                            {
+                                trueDir = false;
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        trueDir = false;
+                        break;
+                    }
+                case PlacedObjectTypeSO.Dir.Down:
+                    if(x1 == x2)
+                    {
+                        if(isTurn)
+                        {
+                            if(dir == PlacedObjectTypeSO.Dir.Up)
+                            {
+                                trueDir = true;
+                                RaceSystem.instance.trackDir = PlacedObjectTypeSO.Dir.Left;
+                                break;
+                            }
+                            else if(dir == PlacedObjectTypeSO.Dir.Right)
+                            {
+                                trueDir = true;
+                                RaceSystem.instance.trackDir = PlacedObjectTypeSO.Dir.Right;
+                                break;
+                            }
+                            else
+                            {
+                                trueDir = false;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            if(dir == PlacedObjectTypeSO.Dir.Up || dir == PlacedObjectTypeSO.Dir.Down)
+                            {
+                                trueDir = true;
+                                RaceSystem.instance.trackDir = PlacedObjectTypeSO.Dir.Down;
+                                break;
+                            }
+                            else
+                            {
+                                trueDir = false;
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        trueDir = false;
+                        break;
+                    }
+                case PlacedObjectTypeSO.Dir.Left:
+                    if(z1 == z2)
+                    {
+                        if(isTurn)
+                        {
+                            if(dir == PlacedObjectTypeSO.Dir.Right)
+                            {
+                                trueDir = true;
+                                RaceSystem.instance.trackDir = PlacedObjectTypeSO.Dir.Up;
+                                break;
+                            }
+                            else if(dir == PlacedObjectTypeSO.Dir.Down)
+                            {
+                                trueDir = true;
+                                RaceSystem.instance.trackDir = PlacedObjectTypeSO.Dir.Down;
+                                break;
+                            }
+                            else
+                            {
+                                trueDir = false;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            if(dir == PlacedObjectTypeSO.Dir.Left || dir == PlacedObjectTypeSO.Dir.Right)
+                            {
+                                trueDir = true;
+                                RaceSystem.instance.trackDir = PlacedObjectTypeSO.Dir.Left;
+                                break;
+                            }
+                            else
+                            {
+                                trueDir = false;
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        trueDir = false;
+                        break;
+                    }
+                case PlacedObjectTypeSO.Dir.Right:
+                    if(z1 == z2)
+                    {
+                        if(isTurn)
+                        {
+                            if(dir == PlacedObjectTypeSO.Dir.Up)
+                            {
+                                trueDir = true;
+                                RaceSystem.instance.trackDir = PlacedObjectTypeSO.Dir.Up;
+                                break;
+                            }
+                            else if(dir == PlacedObjectTypeSO.Dir.Left)
+                            {
+                                trueDir = true;
+                                RaceSystem.instance.trackDir = PlacedObjectTypeSO.Dir.Down;
+                                break;
+                            }
+                            else
+                            {
+                                trueDir = false;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            if(dir == PlacedObjectTypeSO.Dir.Left || dir == PlacedObjectTypeSO.Dir.Right)
+                            {
+                                trueDir = true;
+                                RaceSystem.instance.trackDir = PlacedObjectTypeSO.Dir.Right;
+                                break;
+                            }
+                            else
+                            {
+                                trueDir = false;
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        trueDir = false;
+                        break;
+                    }
+            }
+        }
+        if(isStartFinish)
+        {
+            trueDir = true;
+        }
+        return trueDir;
+    }
 }
